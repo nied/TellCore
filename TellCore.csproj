@@ -52,7 +52,7 @@
     <Compile Include="TellCoreClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enumerations\DeviceType.cs" />
-    <Compile Include="UnmanagedWrapper.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Utils\StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>

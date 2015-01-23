@@ -21,9 +21,9 @@ namespace TellCore
         public delegate void DeviceStateChangedHandler(object sender, DeviceStateChangedEventArgs e);
         public delegate void RawDeviceEventHandler(object sender, RawDeviceEventArgs e);
 
-        UnmanagedWrapper.EventFunctionDelegate deviceStateChangedDelegate;
-        UnmanagedWrapper.DeviceChangeEventFunctionDelegate deviceChangedDelegate;
-        UnmanagedWrapper.RawListeningDelegate rawDeviceEventDelegate;
+        NativeMethods.EventFunctionDelegate deviceStateChangedDelegate;
+        NativeMethods.DeviceChangeEventFunctionDelegate deviceChangedDelegate;
+        NativeMethods.RawListeningDelegate rawDeviceEventDelegate;
 
         int eventDeviceChangedCallbackId = -1;
         int eventFunctionCallbackId = -1;
@@ -33,13 +33,13 @@ namespace TellCore
         {
             unsafe
             {
-                deviceStateChangedDelegate = new UnmanagedWrapper.EventFunctionDelegate(OnDeviceStateChanged);
-                deviceChangedDelegate = new UnmanagedWrapper.DeviceChangeEventFunctionDelegate(OnDeviceChanged);
-                rawDeviceEventDelegate = new UnmanagedWrapper.RawListeningDelegate(OnRawDeviceEvent);
+                deviceStateChangedDelegate = new NativeMethods.EventFunctionDelegate(OnDeviceStateChanged);
+                deviceChangedDelegate = new NativeMethods.DeviceChangeEventFunctionDelegate(OnDeviceChanged);
+                rawDeviceEventDelegate = new NativeMethods.RawListeningDelegate(OnRawDeviceEvent);
 
-                UnmanagedWrapper.tdRegisterDeviceEvent(deviceStateChangedDelegate, null);
-                UnmanagedWrapper.tdRegisterDeviceChangeEvent(deviceChangedDelegate, null);
-                UnmanagedWrapper.tdRegisterRawDeviceEvent(rawDeviceEventDelegate, null);
+                NativeMethods.tdRegisterDeviceEvent(deviceStateChangedDelegate, null);
+                NativeMethods.tdRegisterDeviceChangeEvent(deviceChangedDelegate, null);
+                NativeMethods.tdRegisterRawDeviceEvent(rawDeviceEventDelegate, null);
             }
         }
 
@@ -96,13 +96,13 @@ namespace TellCore
         public void Dispose()
         {
             if (eventDeviceChangedCallbackId != -1)
-                UnmanagedWrapper.tdUnregisterCallback(eventDeviceChangedCallbackId);
+                NativeMethods.tdUnregisterCallback(eventDeviceChangedCallbackId);
 
             if (eventFunctionCallbackId != -1)
-                UnmanagedWrapper.tdUnregisterCallback(eventFunctionCallbackId);
+                NativeMethods.tdUnregisterCallback(eventFunctionCallbackId);
 
             if (rawDeviceEventDelegateId != -1)
-                UnmanagedWrapper.tdUnregisterCallback(rawDeviceEventDelegateId);
+                NativeMethods.tdUnregisterCallback(rawDeviceEventDelegateId);
         }
     }
 }

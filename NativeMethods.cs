@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TellCore
 {
-    public static class UnmanagedWrapper
+    internal static class NativeMethods
     {
         [DllImport("TelldusCore.dll")]
         public static extern int tdGetNumberOfDevices();

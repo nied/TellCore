@@ -13,7 +13,7 @@ namespace TellCore
 
         public TellCoreClient()
         {
-            UnmanagedWrapper.tdInit();
+            NativeMethods.tdInit();
             Events = new EventProxy();
         }
 
@@ -23,7 +23,7 @@ namespace TellCore
         /// <returns>The number of devices</returns>
         public int GetNumberOfDevices()
         {
-            return UnmanagedWrapper.tdGetNumberOfDevices();
+            return NativeMethods.tdGetNumberOfDevices();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace TellCore
         /// <returns>The device id at given index</returns>
         public int GetDeviceId(int index)
         {
-            return UnmanagedWrapper.tdGetDeviceId(index);
+            return NativeMethods.tdGetDeviceId(index);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace TellCore
         /// <returns>The name of the device</returns>
         public unsafe string GetName(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetName(deviceId));
+            return WithUnmanagedString(NativeMethods.tdGetName(deviceId));
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace TellCore
         /// <returns>The protocol used by the device</returns>
         public unsafe string GetProtocol(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetProtocol(deviceId));
+            return WithUnmanagedString(NativeMethods.tdGetProtocol(deviceId));
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace TellCore
         /// <returns>The model of a device</returns>
         public unsafe string GetModel(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetModel(deviceId));
+            return WithUnmanagedString(NativeMethods.tdGetModel(deviceId));
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace TellCore
             char* namePointer = StringUtils.StringToUtf8Pointer(parameterName);
             char* defaultValuePointer = StringUtils.StringToUtf8Pointer(defaultValue);
             
-            var result = WithUnmanagedString(UnmanagedWrapper.tdGetDeviceParameter(deviceId, namePointer, defaultValuePointer));
+            var result = WithUnmanagedString(NativeMethods.tdGetDeviceParameter(deviceId, namePointer, defaultValuePointer));
 
             Marshal.FreeHGlobal((IntPtr)namePointer);
             Marshal.FreeHGlobal((IntPtr)defaultValuePointer);
@@ -98,7 +98,7 @@ namespace TellCore
             char* namePointer = StringUtils.StringToUtf8Pointer(name);
             char* valuePointer = StringUtils.StringToUtf8Pointer(value);
 
-            var result = UnmanagedWrapper.tdSetDeviceParameter(deviceId, namePointer, valuePointer);
+            var result = NativeMethods.tdSetDeviceParameter(deviceId, namePointer, valuePointer);
 
             Marshal.FreeHGlobal((IntPtr)namePointer);
             Marshal.FreeHGlobal((IntPtr)valuePointer);
@@ -115,7 +115,7 @@ namespace TellCore
         public unsafe bool SetName(int deviceId, string name)
         {
             char* namePointer = StringUtils.StringToUtf8Pointer(name);
-            var result = UnmanagedWrapper.tdSetName(deviceId, namePointer);
+            var result = NativeMethods.tdSetName(deviceId, namePointer);
 
             Marshal.FreeHGlobal((IntPtr)namePointer);
 
@@ -131,7 +131,7 @@ namespace TellCore
         public unsafe bool SetProtocol(int deviceId, string protocol)
         {
             char* protocolPointer = StringUtils.StringToUtf8Pointer(protocol);
-            var result = UnmanagedWrapper.tdSetProtocol(deviceId, protocolPointer);
+            var result = NativeMethods.tdSetProtocol(deviceId, protocolPointer);
 
             Marshal.FreeHGlobal((IntPtr)protocolPointer);
 
@@ -147,7 +147,7 @@ namespace TellCore
         public unsafe bool SetModel(int deviceId, string model)
         {
             char* modelPointer = StringUtils.StringToUtf8Pointer(model);
-            var result = UnmanagedWrapper.tdSetModel(deviceId, modelPointer);
+            var result = NativeMethods.tdSetModel(deviceId, modelPointer);
 
             Marshal.FreeHGlobal((IntPtr)modelPointer);
 
@@ -160,7 +160,7 @@ namespace TellCore
         /// <returns>The deviceId for the new device</returns>
         public int AddDevice()
         {
-            return UnmanagedWrapper.tdAddDevice();
+            return NativeMethods.tdAddDevice();
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace TellCore
         /// <returns>True if successful, false if not</returns>
         public bool RemoveDevice(int deviceId)
         {
-            return UnmanagedWrapper.tdRemoveDevice(deviceId);
+            return NativeMethods.tdRemoveDevice(deviceId);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace TellCore
         /// <returns>The applicable methods for the device</returns>
         public DeviceMethod GetMethods(int deviceId, DeviceMethod methodsSupported)
         {
-            var result = UnmanagedWrapper.tdMethods(deviceId, (int)methodsSupported);
+            var result = NativeMethods.tdMethods(deviceId, (int)methodsSupported);
 
             return (DeviceMethod)Enum.Parse(typeof(DeviceMethod), result.ToString());
         }
@@ -193,7 +193,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOn(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdTurnOn(deviceId));
+            return ToTellstickResult(NativeMethods.tdTurnOn(deviceId));
         }
 
         /// <summary>
@@ -203,7 +203,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOff(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdTurnOff(deviceId));
+            return ToTellstickResult(NativeMethods.tdTurnOff(deviceId));
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Bell(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdBell(deviceId));
+            return ToTellstickResult(NativeMethods.tdBell(deviceId));
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace TellCore
             if (level < 0 || level > 255)
                 throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
 
-            return ToTellstickResult(UnmanagedWrapper.tdDim(deviceId, (char)level));
+            return ToTellstickResult(NativeMethods.tdDim(deviceId, (char)level));
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Execute(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdExecute(deviceId));
+            return ToTellstickResult(NativeMethods.tdExecute(deviceId));
         }
         
         /// <summary>
@@ -247,7 +247,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Up(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdUp(deviceId));
+            return ToTellstickResult(NativeMethods.tdUp(deviceId));
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Down(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdDown(deviceId));
+            return ToTellstickResult(NativeMethods.tdDown(deviceId));
         }
 
         /// <summary>
@@ -267,7 +267,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Stop(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdStop(deviceId));
+            return ToTellstickResult(NativeMethods.tdStop(deviceId));
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace TellCore
         /// <returns></returns>
         public DeviceMethod GetLastSentCommand(int deviceId, DeviceMethod methodsSupported)
         {
-            return ToDeviceMethod(UnmanagedWrapper.tdLastSentCommand(deviceId, (int)methodsSupported));
+            return ToDeviceMethod(NativeMethods.tdLastSentCommand(deviceId, (int)methodsSupported));
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace TellCore
         /// <returns>The type of the device</returns>
         public DeviceType GetDeviceType(int deviceId)
         {
-            return ToDeviceType(UnmanagedWrapper.tdGetDeviceType(deviceId));
+            return ToDeviceType(NativeMethods.tdGetDeviceType(deviceId));
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace TellCore
         public unsafe TellstickResult SendRawCommand(string command, int reserved)
         {
             char* pointer = StringUtils.StringToUtf8Pointer(command);
-            var result = ToTellstickResult(UnmanagedWrapper.tdSendRawCommand(pointer, reserved));
+            var result = ToTellstickResult(NativeMethods.tdSendRawCommand(pointer, reserved));
 
             Marshal.FreeHGlobal((IntPtr)pointer);
 
@@ -315,7 +315,7 @@ namespace TellCore
         /// <returns>A human-readable error string</returns>
         public unsafe string GetErrorString(TellstickResult errorCode)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetErrorString((int)errorCode));
+            return WithUnmanagedString(NativeMethods.tdGetErrorString((int)errorCode));
         }
 
         /// <summary>
@@ -324,12 +324,12 @@ namespace TellCore
         /// </summary>
         public void Close()
         {
-            UnmanagedWrapper.tdClose();
+            NativeMethods.tdClose();
         }
 
         private void Init()
         {
-            UnmanagedWrapper.tdInit();
+            NativeMethods.tdInit();
         }
 
         public void Dispose()
@@ -337,7 +337,7 @@ namespace TellCore
             if (Events != null)
                 Events.Dispose();
 
-            UnmanagedWrapper.tdClose();
+            NativeMethods.tdClose();
         }
     }
 }

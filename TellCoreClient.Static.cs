@@ -17,7 +17,7 @@ namespace TellCore
         {
             string result = StringUtils.PointerToUtf8String((IntPtr)pointer);
 
-            UnmanagedWrapper.tdReleaseString(pointer);
+            NativeMethods.tdReleaseString(pointer);
 
             return result;
         }
