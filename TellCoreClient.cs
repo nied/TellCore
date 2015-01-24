@@ -1,20 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TellCore
 {
-    public partial class TellCoreClient : IDisposable
+    public delegate void DeviceChangedHandler(object sender, DeviceChangedEventArgs e);
+    public delegate void DeviceStateChangedHandler(object sender, DeviceStateChangedEventArgs e);
+    public delegate void RawDeviceEventHandler(object sender, RawDeviceEventArgs e);
+
+    public class TellCoreClient : IDisposable
     {
-        public EventProxy Events { get; private set; }
+        int? deviceChangedCallbackId;
+        int? deviceStateChangedCallbackId;
+        int? rawDeviceEventCallbackId;
+
+        event DeviceChangedHandler deviceChanged;
+        event DeviceStateChangedHandler deviceStateChanged;
+        event RawDeviceEventHandler rawDeviceEvent;
 
         public TellCoreClient()
         {
-            UnmanagedWrapper.tdInit();
-            Events = new EventProxy();
+            NativeMethods.tdInit();
         }
 
         /// <summary>
@@ -23,7 +27,7 @@ namespace TellCore
         /// <returns>The number of devices</returns>
         public int GetNumberOfDevices()
         {
-            return UnmanagedWrapper.tdGetNumberOfDevices();
+            return NativeMethods.tdGetNumberOfDevices();
         }
 
         /// <summary>
@@ -33,7 +37,7 @@ namespace TellCore
         /// <returns>The device id at given index</returns>
         public int GetDeviceId(int index)
         {
-            return UnmanagedWrapper.tdGetDeviceId(index);
+            return NativeMethods.tdGetDeviceId(index);
         }
 
         /// <summary>
@@ -41,9 +45,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The deviceId of the device</param>
         /// <returns>The name of the device</returns>
-        public unsafe string GetName(int deviceId)
+        public string GetName(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetName(deviceId));
+            return NativeMethods.tdGetName(deviceId);
         }
 
         /// <summary>
@@ -51,9 +55,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The id of the device</param>
         /// <returns>The protocol used by the device</returns>
-        public unsafe string GetProtocol(int deviceId)
+        public string GetProtocol(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetProtocol(deviceId));
+            return NativeMethods.tdGetProtocol(deviceId);
         }
 
         /// <summary>
@@ -61,9 +65,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The id of the device</param>
         /// <returns>The model of a device</returns>
-        public unsafe string GetModel(int deviceId)
+        public string GetModel(int deviceId)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetModel(deviceId));
+            return NativeMethods.tdGetModel(deviceId);
         }
 
         /// <summary>
@@ -73,17 +77,9 @@ namespace TellCore
         /// <param name="parameterName">The name of the parameter to query</param>
         /// <param name="defaultValue">A default value to return if the current parameter hasn't previously been set</param>
         /// <returns>The parameter value</returns>
-        public unsafe string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
+        public string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(parameterName);
-            char* defaultValuePointer = StringUtils.StringToUtf8Pointer(defaultValue);
-            
-            var result = WithUnmanagedString(UnmanagedWrapper.tdGetDeviceParameter(deviceId, namePointer, defaultValuePointer));
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-            Marshal.FreeHGlobal((IntPtr)defaultValuePointer);
-
-            return result;
+            return NativeMethods.tdGetDeviceParameter(deviceId, parameterName, defaultValue);
         }
 
         /// <summary>
@@ -93,17 +89,9 @@ namespace TellCore
         /// <param name="name">The name of the parameter to set</param>
         /// <param name="value">The value of the parameter to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetDeviceParameter(int deviceId, string name, string value)
+        public bool SetDeviceParameter(int deviceId, string name, string value)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(name);
-            char* valuePointer = StringUtils.StringToUtf8Pointer(value);
-
-            var result = UnmanagedWrapper.tdSetDeviceParameter(deviceId, namePointer, valuePointer);
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-            Marshal.FreeHGlobal((IntPtr)valuePointer);
-
-            return result;
+            return NativeMethods.tdSetDeviceParameter(deviceId, name, value);
         }
 
         /// <summary>
@@ -112,14 +100,9 @@ namespace TellCore
         /// <param name="deviceId">Id of the device to set name for</param>
         /// <param name="name">The name to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetName(int deviceId, string name)
+        public bool SetName(int deviceId, string name)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(name);
-            var result = UnmanagedWrapper.tdSetName(deviceId, namePointer);
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-
-            return result;
+            return NativeMethods.tdSetName(deviceId, name);
         }
 
         /// <summary>
@@ -128,14 +111,9 @@ namespace TellCore
         /// <param name="deviceId">The device id for which to set the protocol</param>
         /// <param name="protocol">The protocol to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetProtocol(int deviceId, string protocol)
+        public bool SetProtocol(int deviceId, string protocol)
         {
-            char* protocolPointer = StringUtils.StringToUtf8Pointer(protocol);
-            var result = UnmanagedWrapper.tdSetProtocol(deviceId, protocolPointer);
-
-            Marshal.FreeHGlobal((IntPtr)protocolPointer);
-
-            return result;
+            return NativeMethods.tdSetProtocol(deviceId, protocol);
         }
 
         /// <summary>
@@ -144,14 +122,9 @@ namespace TellCore
         /// <param name="deviceId">The device id for which to set the model</param>
         /// <param name="model">The model name</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetModel(int deviceId, string model)
+        public bool SetModel(int deviceId, string model)
         {
-            char* modelPointer = StringUtils.StringToUtf8Pointer(model);
-            var result = UnmanagedWrapper.tdSetModel(deviceId, modelPointer);
-
-            Marshal.FreeHGlobal((IntPtr)modelPointer);
-
-            return result;
+            return NativeMethods.tdSetModel(deviceId, model);
         }
 
         /// <summary>
@@ -160,7 +133,7 @@ namespace TellCore
         /// <returns>The deviceId for the new device</returns>
         public int AddDevice()
         {
-            return UnmanagedWrapper.tdAddDevice();
+            return NativeMethods.tdAddDevice();
         }
 
         /// <summary>
@@ -170,7 +143,7 @@ namespace TellCore
         /// <returns>True if successful, false if not</returns>
         public bool RemoveDevice(int deviceId)
         {
-            return UnmanagedWrapper.tdRemoveDevice(deviceId);
+            return NativeMethods.tdRemoveDevice(deviceId);
         }
 
         /// <summary>
@@ -181,9 +154,7 @@ namespace TellCore
         /// <returns>The applicable methods for the device</returns>
         public DeviceMethod GetMethods(int deviceId, DeviceMethod methodsSupported)
         {
-            var result = UnmanagedWrapper.tdMethods(deviceId, (int)methodsSupported);
-
-            return (DeviceMethod)Enum.Parse(typeof(DeviceMethod), result.ToString());
+            return NativeMethods.tdMethods(deviceId, methodsSupported);
         }
 
         /// <summary>
@@ -193,7 +164,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOn(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdTurnOn(deviceId));
+            return NativeMethods.tdTurnOn(deviceId);
         }
 
         /// <summary>
@@ -203,7 +174,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOff(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdTurnOff(deviceId));
+            return NativeMethods.tdTurnOff(deviceId);
         }
 
         /// <summary>
@@ -213,7 +184,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Bell(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdBell(deviceId));
+            return NativeMethods.tdBell(deviceId);
         }
 
         /// <summary>
@@ -227,7 +198,7 @@ namespace TellCore
             if (level < 0 || level > 255)
                 throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
 
-            return ToTellstickResult(UnmanagedWrapper.tdDim(deviceId, (char)level));
+            return NativeMethods.tdDim(deviceId, (char)level);
         }
 
         /// <summary>
@@ -237,9 +208,9 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Execute(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdExecute(deviceId));
+            return NativeMethods.tdExecute(deviceId);
         }
-        
+
         /// <summary>
         /// Sends an "up" command to a device
         /// </summary>
@@ -247,7 +218,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Up(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdUp(deviceId));
+            return NativeMethods.tdUp(deviceId);
         }
 
         /// <summary>
@@ -257,7 +228,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Down(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdDown(deviceId));
+            return NativeMethods.tdDown(deviceId);
         }
 
         /// <summary>
@@ -267,7 +238,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Stop(int deviceId)
         {
-            return ToTellstickResult(UnmanagedWrapper.tdStop(deviceId));
+            return NativeMethods.tdStop(deviceId);
         }
 
         /// <summary>
@@ -278,7 +249,7 @@ namespace TellCore
         /// <returns></returns>
         public DeviceMethod GetLastSentCommand(int deviceId, DeviceMethod methodsSupported)
         {
-            return ToDeviceMethod(UnmanagedWrapper.tdLastSentCommand(deviceId, (int)methodsSupported));
+            return NativeMethods.tdLastSentCommand(deviceId, methodsSupported);
         }
 
         /// <summary>
@@ -288,7 +259,7 @@ namespace TellCore
         /// <returns>The type of the device</returns>
         public DeviceType GetDeviceType(int deviceId)
         {
-            return ToDeviceType(UnmanagedWrapper.tdGetDeviceType(deviceId));
+            return NativeMethods.tdGetDeviceType(deviceId);
         }
 
         /// <summary>
@@ -298,14 +269,9 @@ namespace TellCore
         /// <param name="command">The command for TellStick in its native format</param>
         /// <param name="reserved">Reserved for future use</param>
         /// <returns></returns>
-        public unsafe TellstickResult SendRawCommand(string command, int reserved)
+        public TellstickResult SendRawCommand(string command, int reserved)
         {
-            char* pointer = StringUtils.StringToUtf8Pointer(command);
-            var result = ToTellstickResult(UnmanagedWrapper.tdSendRawCommand(pointer, reserved));
-
-            Marshal.FreeHGlobal((IntPtr)pointer);
-
-            return result;
+            return NativeMethods.tdSendRawCommand(command, reserved);
         }
 
         /// <summary>
@@ -313,9 +279,122 @@ namespace TellCore
         /// </summary>
         /// <param name="errorCode">The error code to translate</param>
         /// <returns>A human-readable error string</returns>
-        public unsafe string GetErrorString(TellstickResult errorCode)
+        public string GetErrorString(TellstickResult errorCode)
         {
-            return WithUnmanagedString(UnmanagedWrapper.tdGetErrorString((int)errorCode));
+            return NativeMethods.tdGetErrorString(errorCode);
+        }
+
+        public event DeviceChangedHandler DeviceChanged
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceChanged == null)
+                    deviceChangedCallbackId = NativeMethods.tdRegisterDeviceChangeEvent(OnDeviceChanged, IntPtr.Zero);
+
+                deviceChanged += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceChanged != null)
+                {
+                    deviceChanged -= value;
+                    if (deviceChanged == null && deviceChangedCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(deviceChangedCallbackId.Value);
+                }
+            }
+        }
+
+        public event DeviceStateChangedHandler DeviceStateChanged
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceStateChanged == null)
+                    deviceStateChangedCallbackId = NativeMethods.tdRegisterDeviceEvent(OnDeviceStateChanged, IntPtr.Zero);
+
+                deviceStateChanged += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceStateChanged != null)
+                {
+                    deviceStateChanged -= value;
+
+                    if (deviceChanged == null && deviceStateChangedCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(deviceStateChangedCallbackId.Value);
+                }
+            }
+        }
+
+        public event RawDeviceEventHandler RawDeviceEvent
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceStateChanged == null)
+                    rawDeviceEventCallbackId = NativeMethods.tdRegisterRawDeviceEvent(OnRawDeviceEvent, IntPtr.Zero);
+
+                rawDeviceEvent += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceStateChanged != null)
+                {
+                    rawDeviceEvent -= value;
+
+                    if (deviceChanged == null && rawDeviceEventCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(rawDeviceEventCallbackId.Value);
+                }
+            }
+        }
+
+        void OnDeviceStateChanged(int deviceId, int method, string data, int callbackId, IntPtr context)
+        {
+            if (deviceStateChanged == null)
+                return;
+
+            var args = new DeviceStateChangedEventArgs
+            {
+                DeviceId = deviceId,
+                Method = (DeviceMethod)method,
+                Data = data
+            };
+
+            deviceStateChanged(this, args);
+        }
+
+
+        void OnDeviceChanged(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context)
+        {
+            if (deviceChanged == null)
+                return;
+
+            var args = new DeviceChangedEventArgs
+            {
+                DeviceId = deviceId,
+                DeviceChange = (DeviceChange)changeEvent,
+                DeviceChangeType = (DeviceChangeType)changeType
+            };
+
+            deviceChanged(this, args);
+        }
+
+        void OnRawDeviceEvent(string data, int controllerId, int callbackId, IntPtr context)
+        {
+            if (rawDeviceEvent == null)
+                return;
+
+            var args = new RawDeviceEventArgs()
+            {
+                ControllerId = controllerId,
+                Data = data
+            };
+
+            rawDeviceEvent(this, args);
         }
 
         /// <summary>
@@ -324,20 +403,25 @@ namespace TellCore
         /// </summary>
         public void Close()
         {
-            UnmanagedWrapper.tdClose();
-        }
-
-        private void Init()
-        {
-            UnmanagedWrapper.tdInit();
+            NativeMethods.tdClose();
         }
 
         public void Dispose()
         {
-            if (Events != null)
-                Events.Dispose();
+            UnregisterIfNecessary(ref deviceChangedCallbackId);
+            UnregisterIfNecessary(ref deviceStateChangedCallbackId);
+            UnregisterIfNecessary(ref rawDeviceEventCallbackId);
 
-            UnmanagedWrapper.tdClose();
+            NativeMethods.tdClose();
+        }
+
+        static void UnregisterIfNecessary(ref int? callbackId)
+        {
+            if (callbackId.HasValue)
+            {
+                NativeMethods.tdUnregisterCallback(callbackId.Value);
+                callbackId = null;
+            }
         }
     }
 }

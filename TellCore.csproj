@@ -20,7 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -48,15 +48,11 @@
     <Compile Include="Events\DeviceChangedEventArgs.cs" />
     <Compile Include="Events\RawDeviceEventArgs.cs" />
     <Compile Include="Events\DeviceStateChangedEventArgs.cs" />
-    <Compile Include="Events\EventProxy.cs" />
     <Compile Include="TellCoreClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enumerations\DeviceType.cs" />
-    <Compile Include="UnmanagedWrapper.cs" />
-    <Compile Include="Utils\StringUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="TellCoreClient.Static.cs" />
+    <Compile Include="NativeMethods.cs" />
+    <Compile Include="Utils\TelldusUtf8Marshaler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
