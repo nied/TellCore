@@ -49,7 +49,7 @@ namespace TellCore.Utils
 
         public void CleanUpNativeData(IntPtr pNativeData)
         {
-            if(direction == MarshalDirection.In)
+            if (direction == MarshalDirection.In)
                 Marshal.FreeHGlobal(pNativeData);
             else
                 NativeMethods.tdReleaseString(pNativeData);
@@ -83,44 +83,34 @@ namespace TellCore.Utils
             return FromNative(pNativeData);
         }
 
-        // Borrowed from libgit2 https://github.com/libgit2/libgit2sharp/blob/cfae3571996d3d5cfb8fb37b1777fcc59d83b68a/LibGit2Sharp/Core/EncodingMarshaler.cs#L93
-        internal static unsafe IntPtr FromManaged(string value)
+        internal static IntPtr FromManaged(string value)
         {
-            if (value == null)
-            {
+            if (value == null) 
                 return IntPtr.Zero;
-            }
 
-            int length = Encoding.UTF8.GetByteCount(value);
-            var buffer = (byte*)Marshal.AllocHGlobal(length + 1).ToPointer();
+            var buf = Encoding.UTF8.GetBytes(value + '\0');
+            var ptr = Marshal.AllocHGlobal(buf.Length);
 
-            if (length > 0)
-            {
-                fixed (char* pValue = value)
-                {
-                    Encoding.UTF8.GetBytes(pValue, value.Length, buffer, length);
-                }
-            }
+            Marshal.Copy(buf, 0, ptr, buf.Length);
 
-            buffer[length] = 0;
-
-            return new IntPtr(buffer);
+            return ptr;
         }
 
-        // Borrowed from libgit2 https://github.com/libgit2/libgit2sharp/blob/cfae3571996d3d5cfb8fb37b1777fcc59d83b68a/LibGit2Sharp/Core/EncodingMarshaler.cs#L93
-        internal static unsafe string FromNative(IntPtr pNativeData)
+        internal static string FromNative(IntPtr pNativeData)
         {
-            if (pNativeData == IntPtr.Zero) return null;
+            if (pNativeData == IntPtr.Zero) 
+                return null;
 
-            var start = (byte*)pNativeData;
-            byte* walk = start;
+            int length = 0;
 
-            // Find the end of the string
-            while (*walk != 0) walk++;
+            while (Marshal.ReadByte(pNativeData, length) != 0) 
+                length++;
 
-            if (walk == start) return string.Empty;
+            var buf = new byte[length];
 
-            return new string((sbyte*)pNativeData.ToPointer(), 0, (int)(walk - start), Encoding.UTF8);
+            Marshal.Copy(pNativeData, buf, 0, length);
+
+            return Encoding.UTF8.GetString(buf);
         }
     }
 }
