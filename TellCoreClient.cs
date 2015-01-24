@@ -413,11 +413,6 @@ namespace TellCore
             NativeMethods.tdClose();
         }
 
-        private void Init()
-        {
-            NativeMethods.tdInit();
-        }
-
         public void Dispose()
         {
             UnregisterIfNecessary(ref deviceChangedCallbackId);
