@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using TellCore.Utils;
 
 namespace TellCore
 {
@@ -16,7 +17,8 @@ namespace TellCore
         public static extern int tdGetDeviceId(int value);
 
         [DllImport("TelldusCore.dll", CharSet = CharSet.Unicode)]
-        public static unsafe extern char* tdGetName(int deviceId);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        public static extern string tdGetName(int deviceId);
 
         [DllImport("TelldusCore.dll")]
         public static unsafe extern char* tdGetProtocol(int deviceId);
@@ -98,6 +100,9 @@ namespace TellCore
 
         [DllImport("TelldusCore.dll")]
         public static unsafe extern void tdReleaseString(char* value);
+        
+        [DllImport("TelldusCore.dll")]
+        public static extern void tdReleaseString(IntPtr value);
 
         [DllImport("TelldusCore.dll")]
         public static unsafe extern int tdUnregisterCallback(int eventId);

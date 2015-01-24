@@ -54,6 +54,7 @@
     <Compile Include="Enumerations\DeviceType.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Utils\StringUtils.cs" />
+    <Compile Include="Utils\TelldusUtf8Marshaler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TellCoreClient.Static.cs" />

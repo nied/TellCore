@@ -41,9 +41,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The deviceId of the device</param>
         /// <returns>The name of the device</returns>
-        public unsafe string GetName(int deviceId)
+        public string GetName(int deviceId)
         {
-            return WithUnmanagedString(NativeMethods.tdGetName(deviceId));
+            return NativeMethods.tdGetName(deviceId);
         }
 
         /// <summary>
