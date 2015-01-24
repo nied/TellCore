@@ -7,14 +7,23 @@ using System.Threading.Tasks;
 
 namespace TellCore
 {
+    public delegate void DeviceChangedHandler(object sender, DeviceChangedEventArgs e);
+    public delegate void DeviceStateChangedHandler(object sender, DeviceStateChangedEventArgs e);
+    public delegate void RawDeviceEventHandler(object sender, RawDeviceEventArgs e);
+
     public partial class TellCoreClient : IDisposable
     {
-        public EventProxy Events { get; private set; }
+        int? deviceChangedCallbackId;
+        int? deviceStateChangedCallbackId;
+        int? rawDeviceEventCallbackId;
+
+        event DeviceChangedHandler deviceChanged;
+        event DeviceStateChangedHandler deviceStateChanged;
+        event RawDeviceEventHandler rawDeviceEvent;
 
         public TellCoreClient()
         {
             NativeMethods.tdInit();
-            Events = new EventProxy();
         }
 
         /// <summary>
@@ -208,7 +217,7 @@ namespace TellCore
         {
             return ToTellstickResult(NativeMethods.tdExecute(deviceId));
         }
-        
+
         /// <summary>
         /// Sends an "up" command to a device
         /// </summary>
@@ -282,6 +291,119 @@ namespace TellCore
             return NativeMethods.tdGetErrorString((int)errorCode);
         }
 
+        public event DeviceChangedHandler DeviceChanged
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceChanged == null)
+                    deviceChangedCallbackId = NativeMethods.tdRegisterDeviceChangeEvent(OnDeviceChanged, IntPtr.Zero);
+
+                deviceChanged += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceChanged != null)
+                {
+                    deviceChanged -= value;
+                    if (deviceChanged == null && deviceChangedCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(deviceChangedCallbackId.Value);
+                }
+            }
+        }
+
+        public event DeviceStateChangedHandler DeviceStateChanged
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceStateChanged == null)
+                    deviceStateChangedCallbackId = NativeMethods.tdRegisterDeviceEvent(OnDeviceStateChanged, IntPtr.Zero);
+
+                deviceStateChanged += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceStateChanged != null)
+                {
+                    deviceStateChanged -= value;
+
+                    if (deviceChanged == null && deviceStateChangedCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(deviceStateChangedCallbackId.Value);
+                }
+            }
+        }
+
+        public event RawDeviceEventHandler RawDeviceEvent
+        {
+            add
+            {
+                // If this is the first subscriber to the event we'll register with telldus
+                if (deviceStateChanged == null)
+                    rawDeviceEventCallbackId = NativeMethods.tdRegisterRawDeviceEvent(OnRawDeviceEvent, IntPtr.Zero);
+
+                rawDeviceEvent += value;
+            }
+            remove
+            {
+                // Need this double check to prevent accidental tdUnregisterCallback
+                if (deviceStateChanged != null)
+                {
+                    rawDeviceEvent -= value;
+
+                    if (deviceChanged == null && rawDeviceEventCallbackId.HasValue)
+                        NativeMethods.tdUnregisterCallback(rawDeviceEventCallbackId.Value);
+                }
+            }
+        }
+
+        void OnDeviceStateChanged(int deviceId, int method, string data, int callbackId, IntPtr context)
+        {
+            if (deviceStateChanged == null)
+                return;
+
+            var args = new DeviceStateChangedEventArgs
+            {
+                DeviceId = deviceId,
+                Method = (DeviceMethod)Enum.Parse(typeof(DeviceMethod), method.ToString()),
+                Data = data
+            };
+
+            deviceStateChanged(this, args);
+        }
+
+
+        void OnDeviceChanged(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context)
+        {
+            if (deviceChanged == null)
+                return;
+
+            var args = new DeviceChangedEventArgs
+            {
+                DeviceId = deviceId,
+                DeviceChange = (DeviceChange)Enum.Parse(typeof(DeviceChange), changeEvent.ToString()),
+                DeviceChangeType = (DeviceChangeType)Enum.Parse(typeof(DeviceChangeType), changeType.ToString())
+            };
+
+            deviceChanged(this, args);
+        }
+
+        void OnRawDeviceEvent(string data, int controllerId, int callbackId, IntPtr context)
+        {
+            if (rawDeviceEvent == null)
+                return;
+
+            var args = new RawDeviceEventArgs()
+            {
+                ControllerId = controllerId,
+                Data = data
+            };
+
+            rawDeviceEvent(this, args);
+        }
+
         /// <summary>
         /// Closes the session with TellCore.dll. 
         /// In general you do not need to call this method, as we do it internally when disposing.
@@ -298,10 +420,20 @@ namespace TellCore
 
         public void Dispose()
         {
-            if (Events != null)
-                Events.Dispose();
+            UnregisterIfNecessary(ref deviceChangedCallbackId);
+            UnregisterIfNecessary(ref deviceStateChangedCallbackId);
+            UnregisterIfNecessary(ref rawDeviceEventCallbackId);
 
             NativeMethods.tdClose();
+        }
+
+        static void UnregisterIfNecessary(ref int? callbackId)
+        {
+            if (callbackId.HasValue)
+            {
+                NativeMethods.tdUnregisterCallback(callbackId.Value);
+                callbackId = null;
+            }
         }
     }
 }

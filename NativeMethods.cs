@@ -124,28 +124,28 @@ namespace TellCore
         internal static extern int tdUnregisterCallback(int eventId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdRegisterDeviceEvent(Delegate deviceEventFunction, IntPtr context);
+        internal static extern int tdRegisterDeviceEvent(EventFunctionDelegate deviceEventFunction, IntPtr context);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdRegisterRawDeviceEvent(Delegate rawListeningFunction, IntPtr context);
+        internal static extern int tdRegisterRawDeviceEvent(RawListeningDelegate rawListeningFunction, IntPtr context);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdRegisterDeviceChangeEvent(Delegate deviceChangeEventFunction, IntPtr context);
+        internal static extern int tdRegisterDeviceChangeEvent(DeviceChangeEventFunctionDelegate deviceChangeEventFunction, IntPtr context);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void EventFunctionDelegate(
+        internal delegate void EventFunctionDelegate(
             int deviceId, 
             int method, 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string data, 
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string data, 
             int callbackId, 
             IntPtr context);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void DeviceChangeEventFunctionDelegate(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context);
+        internal delegate void DeviceChangeEventFunctionDelegate(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-        public delegate void RawListeningDelegate(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string data, 
+        internal delegate void RawListeningDelegate(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string data, 
             int controllerId, 
             int callbackId, 
             IntPtr context);

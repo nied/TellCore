@@ -48,7 +48,6 @@
     <Compile Include="Events\DeviceChangedEventArgs.cs" />
     <Compile Include="Events\RawDeviceEventArgs.cs" />
     <Compile Include="Events\DeviceStateChangedEventArgs.cs" />
-    <Compile Include="Events\EventProxy.cs" />
     <Compile Include="TellCoreClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Enumerations\DeviceType.cs" />
