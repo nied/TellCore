@@ -31,19 +31,16 @@ namespace TellCore
 
         public EventProxy()
         {
-            unsafe
-            {
-                deviceStateChangedDelegate = new NativeMethods.EventFunctionDelegate(OnDeviceStateChanged);
-                deviceChangedDelegate = new NativeMethods.DeviceChangeEventFunctionDelegate(OnDeviceChanged);
-                rawDeviceEventDelegate = new NativeMethods.RawListeningDelegate(OnRawDeviceEvent);
+            deviceStateChangedDelegate = new NativeMethods.EventFunctionDelegate(OnDeviceStateChanged);
+            deviceChangedDelegate = new NativeMethods.DeviceChangeEventFunctionDelegate(OnDeviceChanged);
+            rawDeviceEventDelegate = new NativeMethods.RawListeningDelegate(OnRawDeviceEvent);
 
-                NativeMethods.tdRegisterDeviceEvent(deviceStateChangedDelegate, null);
-                NativeMethods.tdRegisterDeviceChangeEvent(deviceChangedDelegate, null);
-                NativeMethods.tdRegisterRawDeviceEvent(rawDeviceEventDelegate, null);
-            }
+            NativeMethods.tdRegisterDeviceEvent(deviceStateChangedDelegate, IntPtr.Zero);
+            NativeMethods.tdRegisterDeviceChangeEvent(deviceChangedDelegate, IntPtr.Zero);
+            NativeMethods.tdRegisterRawDeviceEvent(rawDeviceEventDelegate, IntPtr.Zero);
         }
 
-        private unsafe void OnDeviceStateChanged(int deviceId, int method, char* data, int callbackId, void* context)
+        private void OnDeviceStateChanged(int deviceId, int method, string data, int callbackId, IntPtr context)
         {
             eventFunctionCallbackId = callbackId;
 
@@ -54,13 +51,13 @@ namespace TellCore
             {
                 DeviceId = deviceId,
                 Method = (DeviceMethod)Enum.Parse(typeof(DeviceMethod), method.ToString()),
-                Data = StringUtils.PointerToUtf8String((IntPtr)data)
+                Data = data
             };
 
             DeviceStateChanged(this, args);
         }
 
-        private unsafe void OnDeviceChanged(int deviceId, int changeEvent, int changeType, int callbackId, void* context)
+        private void OnDeviceChanged(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context)
         {
             eventDeviceChangedCallbackId = callbackId;
 
@@ -77,7 +74,7 @@ namespace TellCore
             DeviceChanged(this, args);
         }
 
-        private unsafe void OnRawDeviceEvent(char* data, int controllerId, int callbackId, void* context)
+        private void OnRawDeviceEvent(string data, int controllerId, int callbackId, IntPtr context)
         {
             eventDeviceChangedCallbackId = callbackId;
 
@@ -87,9 +84,9 @@ namespace TellCore
             var args = new RawDeviceEventArgs()
             {
                 ControllerId = controllerId,
-                Data = StringUtils.PointerToUtf8String((IntPtr)data),
+                Data = data
             };
-            
+
             RawDeviceEvent(this, args);
         }
 

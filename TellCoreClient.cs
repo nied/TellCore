@@ -73,7 +73,7 @@ namespace TellCore
         /// <param name="parameterName">The name of the parameter to query</param>
         /// <param name="defaultValue">A default value to return if the current parameter hasn't previously been set</param>
         /// <returns>The parameter value</returns>
-        public unsafe string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
+        public string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
         {
             return NativeMethods.tdGetDeviceParameter(deviceId, parameterName, defaultValue);
         }
@@ -85,17 +85,9 @@ namespace TellCore
         /// <param name="name">The name of the parameter to set</param>
         /// <param name="value">The value of the parameter to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetDeviceParameter(int deviceId, string name, string value)
+        public bool SetDeviceParameter(int deviceId, string name, string value)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(name);
-            char* valuePointer = StringUtils.StringToUtf8Pointer(value);
-
-            var result = NativeMethods.tdSetDeviceParameter(deviceId, namePointer, valuePointer);
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-            Marshal.FreeHGlobal((IntPtr)valuePointer);
-
-            return result;
+            return NativeMethods.tdSetDeviceParameter(deviceId, name, value);
         }
 
         /// <summary>
@@ -104,14 +96,9 @@ namespace TellCore
         /// <param name="deviceId">Id of the device to set name for</param>
         /// <param name="name">The name to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetName(int deviceId, string name)
+        public bool SetName(int deviceId, string name)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(name);
-            var result = NativeMethods.tdSetName(deviceId, namePointer);
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-
-            return result;
+            return NativeMethods.tdSetName(deviceId, name);
         }
 
         /// <summary>
@@ -120,14 +107,9 @@ namespace TellCore
         /// <param name="deviceId">The device id for which to set the protocol</param>
         /// <param name="protocol">The protocol to set</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetProtocol(int deviceId, string protocol)
+        public bool SetProtocol(int deviceId, string protocol)
         {
-            char* protocolPointer = StringUtils.StringToUtf8Pointer(protocol);
-            var result = NativeMethods.tdSetProtocol(deviceId, protocolPointer);
-
-            Marshal.FreeHGlobal((IntPtr)protocolPointer);
-
-            return result;
+            return NativeMethods.tdSetProtocol(deviceId, protocol);
         }
 
         /// <summary>
@@ -136,14 +118,9 @@ namespace TellCore
         /// <param name="deviceId">The device id for which to set the model</param>
         /// <param name="model">The model name</param>
         /// <returns>True if successful, false if not</returns>
-        public unsafe bool SetModel(int deviceId, string model)
+        public bool SetModel(int deviceId, string model)
         {
-            char* modelPointer = StringUtils.StringToUtf8Pointer(model);
-            var result = NativeMethods.tdSetModel(deviceId, modelPointer);
-
-            Marshal.FreeHGlobal((IntPtr)modelPointer);
-
-            return result;
+            return NativeMethods.tdSetModel(deviceId, model);
         }
 
         /// <summary>
@@ -290,14 +267,9 @@ namespace TellCore
         /// <param name="command">The command for TellStick in its native format</param>
         /// <param name="reserved">Reserved for future use</param>
         /// <returns></returns>
-        public unsafe TellstickResult SendRawCommand(string command, int reserved)
+        public TellstickResult SendRawCommand(string command, int reserved)
         {
-            char* pointer = StringUtils.StringToUtf8Pointer(command);
-            var result = ToTellstickResult(NativeMethods.tdSendRawCommand(pointer, reserved));
-
-            Marshal.FreeHGlobal((IntPtr)pointer);
-
-            return result;
+            return ToTellstickResult(NativeMethods.tdSendRawCommand(command, reserved));
         }
 
         /// <summary>
@@ -305,9 +277,9 @@ namespace TellCore
         /// </summary>
         /// <param name="errorCode">The error code to translate</param>
         /// <returns>A human-readable error string</returns>
-        public unsafe string GetErrorString(TellstickResult errorCode)
+        public string GetErrorString(TellstickResult errorCode)
         {
-            return WithUnmanagedString(NativeMethods.tdGetErrorString((int)errorCode));
+            return NativeMethods.tdGetErrorString((int)errorCode);
         }
 
         /// <summary>
