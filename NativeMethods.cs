@@ -59,35 +59,35 @@ namespace TellCore
         internal static extern bool tdRemoveDevice(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdMethods(int deviceId, int methodsSupported);
+        internal static extern DeviceMethod tdMethods(int deviceId, DeviceMethod methodsSupported);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdTurnOn(int deviceId);
+        internal static extern TellstickResult tdTurnOn(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdTurnOff(int deviceId);
+        internal static extern TellstickResult tdTurnOff(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdBell(int deviceId);
+        internal static extern TellstickResult tdBell(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdDim(int deviceId, char level);
+        internal static extern TellstickResult tdDim(int deviceId, char level);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdExecute(int deviceId);
+        internal static extern TellstickResult tdExecute(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdUp(int deviceId);
+        internal static extern TellstickResult tdUp(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdDown(int deviceId);
+        internal static extern TellstickResult tdDown(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdStop(int deviceId);
+        internal static extern TellstickResult tdStop(int deviceId);
 
         [DllImport("TelldusCore.dll")]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
-        internal static extern string tdGetErrorString(int errorNo);
+        internal static extern string tdGetErrorString(TellstickResult errorNo);
 
         [DllImport("TelldusCore.dll")]
         internal static extern void tdClose();
@@ -96,13 +96,13 @@ namespace TellCore
         internal static extern void tdInit();
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdLastSentCommand(int deviceId, int methods);
+        internal static extern DeviceMethod tdLastSentCommand(int deviceId, DeviceMethod methods);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdGetDeviceType(int deviceId);
+        internal static extern DeviceType tdGetDeviceType(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern int tdSendRawCommand(
+        internal static extern TellstickResult tdSendRawCommand(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]string command, 
             int reserved);
 

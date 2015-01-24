@@ -154,7 +154,7 @@ namespace TellCore
         /// <returns>The applicable methods for the device</returns>
         public DeviceMethod GetMethods(int deviceId, DeviceMethod methodsSupported)
         {
-            return (DeviceMethod)NativeMethods.tdMethods(deviceId, (int)methodsSupported);
+            return NativeMethods.tdMethods(deviceId, methodsSupported);
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOn(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdTurnOn(deviceId);
+            return NativeMethods.tdTurnOn(deviceId);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOff(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdTurnOff(deviceId);
+            return NativeMethods.tdTurnOff(deviceId);
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Bell(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdBell(deviceId);
+            return NativeMethods.tdBell(deviceId);
         }
 
         /// <summary>
@@ -198,7 +198,7 @@ namespace TellCore
             if (level < 0 || level > 255)
                 throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
 
-            return (TellstickResult)NativeMethods.tdDim(deviceId, (char)level);
+            return NativeMethods.tdDim(deviceId, (char)level);
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Execute(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdExecute(deviceId);
+            return NativeMethods.tdExecute(deviceId);
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Up(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdUp(deviceId);
+            return NativeMethods.tdUp(deviceId);
         }
 
         /// <summary>
@@ -228,7 +228,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Down(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdDown(deviceId);
+            return NativeMethods.tdDown(deviceId);
         }
 
         /// <summary>
@@ -238,7 +238,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Stop(int deviceId)
         {
-            return (TellstickResult)NativeMethods.tdStop(deviceId);
+            return NativeMethods.tdStop(deviceId);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace TellCore
         /// <returns></returns>
         public DeviceMethod GetLastSentCommand(int deviceId, DeviceMethod methodsSupported)
         {
-            return (DeviceMethod)NativeMethods.tdLastSentCommand(deviceId, (int)methodsSupported);
+            return NativeMethods.tdLastSentCommand(deviceId, methodsSupported);
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace TellCore
         /// <returns>The type of the device</returns>
         public DeviceType GetDeviceType(int deviceId)
         {
-            return (DeviceType)NativeMethods.tdGetDeviceType(deviceId);
+            return NativeMethods.tdGetDeviceType(deviceId);
         }
 
         /// <summary>
@@ -271,7 +271,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult SendRawCommand(string command, int reserved)
         {
-            return (TellstickResult)NativeMethods.tdSendRawCommand(command, reserved);
+            return NativeMethods.tdSendRawCommand(command, reserved);
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace TellCore
         /// <returns>A human-readable error string</returns>
         public string GetErrorString(TellstickResult errorCode)
         {
-            return NativeMethods.tdGetErrorString((int)errorCode);
+            return NativeMethods.tdGetErrorString(errorCode);
         }
 
         public event DeviceChangedHandler DeviceChanged
