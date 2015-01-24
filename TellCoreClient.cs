@@ -6,7 +6,7 @@ namespace TellCore
     public delegate void DeviceStateChangedHandler(object sender, DeviceStateChangedEventArgs e);
     public delegate void RawDeviceEventHandler(object sender, RawDeviceEventArgs e);
 
-    public partial class TellCoreClient : IDisposable
+    public class TellCoreClient : IDisposable
     {
         int? deviceChangedCallbackId;
         int? deviceStateChangedCallbackId;
