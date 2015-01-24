@@ -17,17 +17,30 @@ namespace TellCore
         public static extern int tdGetDeviceId(int value);
 
         [DllImport("TelldusCore.dll", CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
         public static extern string tdGetName(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        public static unsafe extern char* tdGetProtocol(int deviceId);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        public static extern string tdGetProtocol(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        public static unsafe extern char* tdGetModel(int deviceId);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        public static extern string tdGetModel(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        public static unsafe extern char* tdGetDeviceParameter(int deviceId, char* name, char* defaultValue);
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        public static extern string tdGetDeviceParameter(
+            int deviceId,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string name,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))] string defaultValue);
+
+        [DllImport("TelldusCore.dll")]
+        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "out", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]
+        public static unsafe extern string tdGetDeviceParameter(
+            int deviceId,
+            char* name,
+            char* defaultValue);
 
         [DllImport("TelldusCore.dll")]
         public static unsafe extern bool tdSetName(int deviceId, char* name);

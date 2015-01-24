@@ -51,9 +51,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The id of the device</param>
         /// <returns>The protocol used by the device</returns>
-        public unsafe string GetProtocol(int deviceId)
+        public string GetProtocol(int deviceId)
         {
-            return WithUnmanagedString(NativeMethods.tdGetProtocol(deviceId));
+            return NativeMethods.tdGetProtocol(deviceId);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The id of the device</param>
         /// <returns>The model of a device</returns>
-        public unsafe string GetModel(int deviceId)
+        public string GetModel(int deviceId)
         {
-            return WithUnmanagedString(NativeMethods.tdGetModel(deviceId));
+            return NativeMethods.tdGetModel(deviceId);
         }
 
         /// <summary>
@@ -75,15 +75,7 @@ namespace TellCore
         /// <returns>The parameter value</returns>
         public unsafe string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
         {
-            char* namePointer = StringUtils.StringToUtf8Pointer(parameterName);
-            char* defaultValuePointer = StringUtils.StringToUtf8Pointer(defaultValue);
-            
-            var result = WithUnmanagedString(NativeMethods.tdGetDeviceParameter(deviceId, namePointer, defaultValuePointer));
-
-            Marshal.FreeHGlobal((IntPtr)namePointer);
-            Marshal.FreeHGlobal((IntPtr)defaultValuePointer);
-
-            return result;
+            return NativeMethods.tdGetDeviceParameter(deviceId, parameterName, defaultValue);
         }
 
         /// <summary>
