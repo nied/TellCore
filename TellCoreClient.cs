@@ -154,9 +154,7 @@ namespace TellCore
         /// <returns>The applicable methods for the device</returns>
         public DeviceMethod GetMethods(int deviceId, DeviceMethod methodsSupported)
         {
-            var result = NativeMethods.tdMethods(deviceId, (int)methodsSupported);
-
-            return (DeviceMethod)Enum.Parse(typeof(DeviceMethod), result.ToString());
+            return (DeviceMethod)NativeMethods.tdMethods(deviceId, (int)methodsSupported);
         }
 
         /// <summary>
@@ -166,7 +164,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOn(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdTurnOn(deviceId));
+            return (TellstickResult)NativeMethods.tdTurnOn(deviceId);
         }
 
         /// <summary>
@@ -176,7 +174,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult TurnOff(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdTurnOff(deviceId));
+            return (TellstickResult)NativeMethods.tdTurnOff(deviceId);
         }
 
         /// <summary>
@@ -186,7 +184,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Bell(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdBell(deviceId));
+            return (TellstickResult)NativeMethods.tdBell(deviceId);
         }
 
         /// <summary>
@@ -200,7 +198,7 @@ namespace TellCore
             if (level < 0 || level > 255)
                 throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
 
-            return ToTellstickResult(NativeMethods.tdDim(deviceId, (char)level));
+            return (TellstickResult)NativeMethods.tdDim(deviceId, (char)level);
         }
 
         /// <summary>
@@ -210,7 +208,7 @@ namespace TellCore
         /// <returns>The result of the operation</returns>
         public TellstickResult Execute(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdExecute(deviceId));
+            return (TellstickResult)NativeMethods.tdExecute(deviceId);
         }
 
         /// <summary>
@@ -220,7 +218,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Up(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdUp(deviceId));
+            return (TellstickResult)NativeMethods.tdUp(deviceId);
         }
 
         /// <summary>
@@ -230,7 +228,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Down(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdDown(deviceId));
+            return (TellstickResult)NativeMethods.tdDown(deviceId);
         }
 
         /// <summary>
@@ -240,7 +238,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult Stop(int deviceId)
         {
-            return ToTellstickResult(NativeMethods.tdStop(deviceId));
+            return (TellstickResult)NativeMethods.tdStop(deviceId);
         }
 
         /// <summary>
@@ -251,7 +249,7 @@ namespace TellCore
         /// <returns></returns>
         public DeviceMethod GetLastSentCommand(int deviceId, DeviceMethod methodsSupported)
         {
-            return ToDeviceMethod(NativeMethods.tdLastSentCommand(deviceId, (int)methodsSupported));
+            return (DeviceMethod)NativeMethods.tdLastSentCommand(deviceId, (int)methodsSupported);
         }
 
         /// <summary>
@@ -261,7 +259,7 @@ namespace TellCore
         /// <returns>The type of the device</returns>
         public DeviceType GetDeviceType(int deviceId)
         {
-            return ToDeviceType(NativeMethods.tdGetDeviceType(deviceId));
+            return (DeviceType)NativeMethods.tdGetDeviceType(deviceId);
         }
 
         /// <summary>
@@ -273,7 +271,7 @@ namespace TellCore
         /// <returns></returns>
         public TellstickResult SendRawCommand(string command, int reserved)
         {
-            return ToTellstickResult(NativeMethods.tdSendRawCommand(command, reserved));
+            return (TellstickResult)NativeMethods.tdSendRawCommand(command, reserved);
         }
 
         /// <summary>
@@ -362,7 +360,7 @@ namespace TellCore
             var args = new DeviceStateChangedEventArgs
             {
                 DeviceId = deviceId,
-                Method = (DeviceMethod)Enum.Parse(typeof(DeviceMethod), method.ToString()),
+                Method = (DeviceMethod)method,
                 Data = data
             };
 
@@ -378,8 +376,8 @@ namespace TellCore
             var args = new DeviceChangedEventArgs
             {
                 DeviceId = deviceId,
-                DeviceChange = (DeviceChange)Enum.Parse(typeof(DeviceChange), changeEvent.ToString()),
-                DeviceChangeType = (DeviceChangeType)Enum.Parse(typeof(DeviceChangeType), changeType.ToString())
+                DeviceChange = (DeviceChange)changeEvent,
+                DeviceChangeType = (DeviceChangeType)changeType
             };
 
             deviceChanged(this, args);
