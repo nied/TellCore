@@ -6,18 +6,23 @@ using System.Threading.Tasks;
 
 namespace TellCore
 {
+    /// <summary>
+    /// Available Tellstick commands. Can be used with 
+    /// the <see cref="TellCoreClient.GetMethods"/> to retrieve 
+    /// a bitmask of all commands supported by a particular device
+    /// </summary>
     [Flags]
     public enum DeviceMethod
     {
-        TELLSTICK_TURNON = 1,
-        TELLSTICK_TURNOFF = 2,
-        TELLSTICK_BELL = 4,
-        TELLSTICK_TOGGLE = 8,
-        TELLSTICK_DIM = 16,
-        TELLSTICK_LEARN = 32,
-        TELLSTICK_EXECUTE = 64,
-        TELLSTICK_UP = 128,
-        TELLSTICK_DOWN = 256,
-        TELLSTICK_STOP = 512,
+        TurnOn = 1,
+        TurnOff = 2,
+        Bell = 4,
+        Toggle = 8,
+        Dim = 16,
+        Learn = 32,
+        Execute = 64,
+        Up = 128,
+        Down = 256,
+        Stop = 512,
     }
 }
