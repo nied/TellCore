@@ -1,15 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TellCore
 {
     public enum DeviceChangeType
     {
-        TELLSTICK_CHANGE_NAME = 1,
-        TELLSTICK_CHANGE_PROTOCOL = 2,
-        TELLSTICK_CHANGE_MODEL = 3,
+        /// <summary>
+        /// The name of an existing device has changed
+        /// </summary>
+        Name = 1,
+        /// <summary>
+        /// The protocol of an existing device has changed
+        /// </summary>
+        Protocol = 2,
+        /// <summary>
+        /// The model of an existing device has changed
+        /// </summary>
+        Model = 3,
     }
 }

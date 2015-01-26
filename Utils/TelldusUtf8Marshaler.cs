@@ -21,8 +21,8 @@ namespace TellCore.Utils
         /// Initializes a new instance of the <see cref="TelldusUtf8Marshaler"/> class.
         /// </summary>
         /// <param name="direction">
-        /// if set to <c>true</c> the marshaller will free strings using telldus API. 
-        /// Use this for marshallers that receive strings from the API. If false the
+        /// if set to <c>true</c> the marshaler will free strings using Telldus API.
+        /// Use this for marshalers that receive strings from the API. If false the
         /// strings will</param>
         public TelldusUtf8Marshaler(MarshalDirection direction)
         {
@@ -60,7 +60,7 @@ namespace TellCore.Utils
         public IntPtr MarshalManagedToNative(object ManagedObj)
         {
             if (direction == MarshalDirection.Out)
-                throw new InvalidOperationException("Marshaller is used in output mode, can't marshal managed to native");
+                throw new InvalidOperationException("Marshaler is used in output mode, can't marshal managed to native");
 
             if (ManagedObj == null) return IntPtr.Zero;
 
@@ -75,7 +75,7 @@ namespace TellCore.Utils
         public object MarshalNativeToManaged(IntPtr pNativeData)
         {
             if (direction == MarshalDirection.In)
-                throw new InvalidOperationException("Marshaller is used in input mode, can't marshal managed to native");
+                throw new InvalidOperationException("Marshaler is used in input mode, can't marshal managed to native");
 
             return FromNative(pNativeData);
         }
