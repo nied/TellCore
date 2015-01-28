@@ -367,7 +367,6 @@ namespace TellCore
             deviceStateChanged(this, args);
         }
 
-
         void OnDeviceChanged(int deviceId, int changeEvent, int changeType, int callbackId, IntPtr context)
         {
             if (deviceChanged == null)
