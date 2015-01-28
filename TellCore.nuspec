@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>TellCore</id>
+        <version>0.3.0</version>
+        <authors>Nils Edström,Markus Olsson</authors>
+        <licenseUrl>https://github.com/nied/TellCore/blob/master/LICENSE.txt</licenseUrl>
+        <projectUrl>https://github.com/nied/TellCore</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>A managed wrapper for the Tellstick TellCore API.</description>
+    </metadata>
+    <files>
+        <file src="lib\TellCore.dll" target="lib\TellCore.dll" />
+    </files>
+</package>
