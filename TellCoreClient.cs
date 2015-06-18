@@ -8,6 +8,11 @@ namespace TellCore
 
     public class TellCoreClient : IDisposable
     {
+        // Declare delegate as a member to keep reference, it prevents the delegate from being disposed
+        NativeMethods.EventFunctionDelegate eventFunctionDelegate;
+        NativeMethods.DeviceChangeEventFunctionDelegate deviceChangeEventFunctionDelegate;
+        NativeMethods.RawListeningDelegate rawListeningDelegate;
+        
         int? deviceChangedCallbackId;
         int? deviceStateChangedCallbackId;
         int? rawDeviceEventCallbackId;
@@ -290,8 +295,10 @@ namespace TellCore
             {
                 // If this is the first subscriber to the event we'll register with telldus
                 if (deviceChanged == null)
-                    deviceChangedCallbackId = NativeMethods.tdRegisterDeviceChangeEvent(OnDeviceChanged, IntPtr.Zero);
-
+                {
+                    deviceChangeEventFunctionDelegate = OnDeviceChanged;
+                    deviceChangedCallbackId = NativeMethods.tdRegisterDeviceChangeEvent(deviceChangeEventFunctionDelegate, IntPtr.Zero);
+                }
                 deviceChanged += value;
             }
             remove
@@ -312,8 +319,10 @@ namespace TellCore
             {
                 // If this is the first subscriber to the event we'll register with telldus
                 if (deviceStateChanged == null)
-                    deviceStateChangedCallbackId = NativeMethods.tdRegisterDeviceEvent(OnDeviceStateChanged, IntPtr.Zero);
-
+                {
+                    eventFunctionDelegate = OnDeviceStateChanged;
+                    deviceStateChangedCallbackId = NativeMethods.tdRegisterDeviceEvent(eventFunctionDelegate, IntPtr.Zero);
+                }
                 deviceStateChanged += value;
             }
             remove
@@ -323,7 +332,7 @@ namespace TellCore
                 {
                     deviceStateChanged -= value;
 
-                    if (deviceChanged == null && deviceStateChangedCallbackId.HasValue)
+                    if (deviceStateChanged == null && deviceStateChangedCallbackId.HasValue)
                         NativeMethods.tdUnregisterCallback(deviceStateChangedCallbackId.Value);
                 }
             }
@@ -334,19 +343,21 @@ namespace TellCore
             add
             {
                 // If this is the first subscriber to the event we'll register with telldus
-                if (deviceStateChanged == null)
-                    rawDeviceEventCallbackId = NativeMethods.tdRegisterRawDeviceEvent(OnRawDeviceEvent, IntPtr.Zero);
-
+                if (rawDeviceEvent == null)
+                {
+                    rawListeningDelegate = new NativeMethods.RawListeningDelegate(OnRawDeviceEvent);
+                    rawDeviceEventCallbackId = NativeMethods.tdRegisterRawDeviceEvent(rawListeningDelegate, IntPtr.Zero);
+                }
                 rawDeviceEvent += value;
             }
             remove
             {
                 // Need this double check to prevent accidental tdUnregisterCallback
-                if (deviceStateChanged != null)
+                if (rawDeviceEvent != null)
                 {
                     rawDeviceEvent -= value;
 
-                    if (deviceChanged == null && rawDeviceEventCallbackId.HasValue)
+                    if (rawDeviceEvent == null && rawDeviceEventCallbackId.HasValue)
                         NativeMethods.tdUnregisterCallback(rawDeviceEventCallbackId.Value);
                 }
             }
