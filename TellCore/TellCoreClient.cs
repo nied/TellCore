@@ -16,10 +16,15 @@ namespace TellCore
         event DeviceStateChangedHandler deviceStateChanged;
         event RawDeviceEventHandler rawDeviceEvent;
 
-        public TellCoreClient()
+        public TellCoreClient() : this(new TelldusCoreProxy()) { }
+
+        public TellCoreClient(ITelldusCoreProxy proxy)
         {
-            NativeMethods.tdInit();
+            Proxy = proxy;
+            Proxy.Init();
         }
+
+        private ITelldusCoreProxy Proxy { get; }
 
         /// <summary>
         /// Gets the total number of devices in TelldusCenter.
@@ -27,7 +32,7 @@ namespace TellCore
         /// <returns>The number of devices</returns>
         public int GetNumberOfDevices()
         {
-            return NativeMethods.tdGetNumberOfDevices();
+            return Proxy.GetNumberOfDevices();
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace TellCore
         /// <returns>The device id at given index</returns>
         public int GetDeviceId(int index)
         {
-            return NativeMethods.tdGetDeviceId(index);
+            return Proxy.GetDeviceId(index);
         }
 
         /// <summary>
@@ -47,7 +52,7 @@ namespace TellCore
         /// <returns>The name of the device</returns>
         public string GetName(int deviceId)
         {
-            return NativeMethods.tdGetName(deviceId);
+            return Proxy.GetName(deviceId);
         }
 
         /// <summary>
@@ -57,7 +62,7 @@ namespace TellCore
         /// <returns>The protocol used by the device</returns>
         public string GetProtocol(int deviceId)
         {
-            return NativeMethods.tdGetProtocol(deviceId);
+            return Proxy.GetProtocol(deviceId);
         }
 
         /// <summary>
@@ -67,7 +72,7 @@ namespace TellCore
         /// <returns>The model of a device</returns>
         public string GetModel(int deviceId)
         {
-            return NativeMethods.tdGetModel(deviceId);
+            return Proxy.GetModel(deviceId);
         }
 
         /// <summary>
@@ -79,7 +84,7 @@ namespace TellCore
         /// <returns>The parameter value</returns>
         public string GetDeviceParameter(int deviceId, string parameterName, string defaultValue)
         {
-            return NativeMethods.tdGetDeviceParameter(deviceId, parameterName, defaultValue);
+            return Proxy.GetDeviceParameter(deviceId, parameterName, defaultValue);
         }
 
         /// <summary>
@@ -88,10 +93,9 @@ namespace TellCore
         /// <param name="deviceId">The device id for which to set a parameter</param>
         /// <param name="name">The name of the parameter to set</param>
         /// <param name="value">The value of the parameter to set</param>
-        /// <returns>True if successful, false if not</returns>
-        public bool SetDeviceParameter(int deviceId, string name, string value)
+        public void SetDeviceParameter(int deviceId, string name, string value)
         {
-            return NativeMethods.tdSetDeviceParameter(deviceId, name, value);
+            Proxy.SetDeviceParameter(deviceId, name, value);
         }
 
         /// <summary>
@@ -99,10 +103,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">Id of the device to set name for</param>
         /// <param name="name">The name to set</param>
-        /// <returns>True if successful, false if not</returns>
-        public bool SetName(int deviceId, string name)
+        public void SetName(int deviceId, string name)
         {
-            return NativeMethods.tdSetName(deviceId, name);
+            Proxy.SetName(deviceId, name);
         }
 
         /// <summary>
@@ -110,10 +113,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The device id for which to set the protocol</param>
         /// <param name="protocol">The protocol to set</param>
-        /// <returns>True if successful, false if not</returns>
-        public bool SetProtocol(int deviceId, string protocol)
+        public void SetProtocol(int deviceId, string protocol)
         {
-            return NativeMethods.tdSetProtocol(deviceId, protocol);
+            Proxy.SetProtocol(deviceId, protocol);
         }
 
         /// <summary>
@@ -121,10 +123,9 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The device id for which to set the model</param>
         /// <param name="model">The model name</param>
-        /// <returns>True if successful, false if not</returns>
-        public bool SetModel(int deviceId, string model)
+        public void SetModel(int deviceId, string model)
         {
-            return NativeMethods.tdSetModel(deviceId, model);
+            Proxy.SetModel(deviceId, model);
         }
 
         /// <summary>
@@ -133,58 +134,52 @@ namespace TellCore
         /// <returns>The deviceId for the new device</returns>
         public int AddDevice()
         {
-            return NativeMethods.tdAddDevice();
+            return Proxy.AddDevice();
         }
 
         /// <summary>
         /// Removes a device
         /// </summary>
         /// <param name="deviceId">The deviceId to remove</param>
-        /// <returns>True if successful, false if not</returns>
-        public bool RemoveDevice(int deviceId)
+        public void RemoveDevice(int deviceId)
         {
-            return NativeMethods.tdRemoveDevice(deviceId);
+            Proxy.RemoveDevice(deviceId);
         }
 
         /// <summary>
         /// Gets the supported method of a device
         /// </summary>
         /// <param name="deviceId">The deviceId for which to query</param>
-        /// <param name="methodsSupported">The methods your application supports</param>
-        /// <returns>The applicable methods for the device</returns>
-        public DeviceMethod GetMethods(int deviceId, DeviceMethod methodsSupported)
+        public DeviceMethod GetMethods(int deviceId)
         {
-            return NativeMethods.tdMethods(deviceId, methodsSupported);
+            return Proxy.GetMethods(deviceId);
         }
 
         /// <summary>
         /// Turns on a device
         /// </summary>
         /// <param name="deviceId">The deviceId to turn on</param>
-        /// <returns>The result of the operation</returns>
-        public TellstickResult TurnOn(int deviceId)
+        public void TurnOn(int deviceId)
         {
-            return NativeMethods.tdTurnOn(deviceId);
+            Proxy.TurnOn(deviceId);
         }
 
         /// <summary>
         /// Turns off a device
         /// </summary>
         /// <param name="deviceId">The deviceId to turn off</param>
-        /// <returns>The result of the operation</returns>
-        public TellstickResult TurnOff(int deviceId)
+        public void TurnOff(int deviceId)
         {
-            return NativeMethods.tdTurnOff(deviceId);
+            Proxy.TurnOff(deviceId);
         }
 
         /// <summary>
         /// Sends a bell command to a device
         /// </summary>
         /// <param name="deviceId">The deviceId to bell</param>
-        /// <returns>The result of the operation</returns>
-        public TellstickResult Bell(int deviceId)
+        public void Bell(int deviceId)
         {
-            return NativeMethods.tdBell(deviceId);
+            Proxy.Bell(deviceId);
         }
 
         /// <summary>
@@ -192,64 +187,58 @@ namespace TellCore
         /// </summary>
         /// <param name="deviceId">The deviceId to dim</param>
         /// <param name="level">The level to dim to (0 - 255)</param>
-        /// <returns>The result of the operation</returns>
-        public TellstickResult Dim(int deviceId, int level)
+        public void Dim(int deviceId, int level)
         {
             if (level < 0 || level > 255)
-                throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
+                throw new ArgumentOutOfRangeException(nameof(level), "Must be between 0 and 255");
 
-            return NativeMethods.tdDim(deviceId, (char)level);
+            Proxy.Dim(deviceId, level);
         }
 
         /// <summary>
         /// Execute a scene action
         /// </summary>
         /// <param name="deviceId">The deviceId for which to execute a scene</param>
-        /// <returns>The result of the operation</returns>
-        public TellstickResult Execute(int deviceId)
+        public void Execute(int deviceId)
         {
-            return NativeMethods.tdExecute(deviceId);
+            Proxy.Execute(deviceId);
         }
 
         /// <summary>
         /// Sends an "up" command to a device
         /// </summary>
         /// <param name="deviceId">Device to send command to</param>
-        /// <returns></returns>
-        public TellstickResult Up(int deviceId)
+        public void Up(int deviceId)
         {
-            return NativeMethods.tdUp(deviceId);
+            Proxy.Up(deviceId);
         }
 
         /// <summary>
         /// Sends a "down" command to a device
         /// </summary>
         /// <param name="deviceId">Device to send command to</param>
-        /// <returns></returns>
-        public TellstickResult Down(int deviceId)
+        public void Down(int deviceId)
         {
-            return NativeMethods.tdDown(deviceId);
+            Proxy.Down(deviceId);
         }
 
         /// <summary>
         /// Sends a "stop" command to a device
         /// </summary>
         /// <param name="deviceId">Device to send command to</param>
-        /// <returns></returns>
-        public TellstickResult Stop(int deviceId)
+        public void Stop(int deviceId)
         {
-            return NativeMethods.tdStop(deviceId);
+            Proxy.Stop(deviceId);
         }
 
         /// <summary>
         /// Gets the last sent command to a device
         /// </summary>
         /// <param name="deviceId">Device to query</param>
-        /// <param name="methodsSupported">The methods supported by the client</param>
         /// <returns></returns>
-        public DeviceMethod GetLastSentCommand(int deviceId, DeviceMethod methodsSupported)
+        public DeviceMethod GetLastSentCommand(int deviceId)
         {
-            return NativeMethods.tdLastSentCommand(deviceId, methodsSupported);
+            return Proxy.GetLastSentCommand(deviceId);
         }
 
         /// <summary>
@@ -259,7 +248,7 @@ namespace TellCore
         /// <returns>The type of the device</returns>
         public DeviceType GetDeviceType(int deviceId)
         {
-            return NativeMethods.tdGetDeviceType(deviceId);
+            return Proxy.GetDeviceType(deviceId);
         }
 
         /// <summary>
@@ -267,21 +256,9 @@ namespace TellCore
         /// Please read the TellStick protocol definition on how the command should be constructed.
         /// </summary>
         /// <param name="command">The command for TellStick in its native format</param>
-        /// <param name="reserved">Reserved for future use</param>
-        /// <returns></returns>
-        public TellstickResult SendRawCommand(string command, int reserved)
+        public void SendRawCommand(string command)
         {
-            return NativeMethods.tdSendRawCommand(command, reserved);
-        }
-
-        /// <summary>
-        /// Gets a human readable string from an error code returned from a function in telldus-core.
-        /// </summary>
-        /// <param name="errorCode">The error code to translate</param>
-        /// <returns>A human-readable error string</returns>
-        public string GetErrorString(TellstickResult errorCode)
-        {
-            return NativeMethods.tdGetErrorString(errorCode);
+            Proxy.SendRawCommand(command);
         }
 
         public event DeviceChangedHandler DeviceChanged
@@ -290,7 +267,7 @@ namespace TellCore
             {
                 // If this is the first subscriber to the event we'll register with telldus
                 if (deviceChanged == null)
-                    deviceChangedCallbackId = NativeMethods.tdRegisterDeviceChangeEvent(OnDeviceChanged, IntPtr.Zero);
+                    deviceChangedCallbackId = Proxy.RegisterDeviceChangeEvent(OnDeviceChanged);
 
                 deviceChanged += value;
             }
@@ -301,7 +278,7 @@ namespace TellCore
                 {
                     deviceChanged -= value;
                     if (deviceChanged == null && deviceChangedCallbackId.HasValue)
-                        NativeMethods.tdUnregisterCallback(deviceChangedCallbackId.Value);
+                        Proxy.UnregisterCallback(deviceChangedCallbackId.Value);
                 }
             }
         }
@@ -312,7 +289,7 @@ namespace TellCore
             {
                 // If this is the first subscriber to the event we'll register with telldus
                 if (deviceStateChanged == null)
-                    deviceStateChangedCallbackId = NativeMethods.tdRegisterDeviceEvent(OnDeviceStateChanged, IntPtr.Zero);
+                    deviceStateChangedCallbackId = Proxy.RegisterDeviceEvent(OnDeviceStateChanged);
 
                 deviceStateChanged += value;
             }
@@ -324,7 +301,7 @@ namespace TellCore
                     deviceStateChanged -= value;
 
                     if (deviceStateChanged == null && deviceStateChangedCallbackId.HasValue)
-                        NativeMethods.tdUnregisterCallback(deviceStateChangedCallbackId.Value);
+                        Proxy.UnregisterCallback(deviceStateChangedCallbackId.Value);
                 }
             }
         }
@@ -335,7 +312,7 @@ namespace TellCore
             {
                 // If this is the first subscriber to the event we'll register with telldus
                 if (rawDeviceEvent == null)
-                    rawDeviceEventCallbackId = NativeMethods.tdRegisterRawDeviceEvent(OnRawDeviceEvent, IntPtr.Zero);
+                    rawDeviceEventCallbackId = Proxy.RegisterRawDeviceEvent(OnRawDeviceEvent);
 
                 rawDeviceEvent += value;
             }
@@ -347,12 +324,12 @@ namespace TellCore
                     rawDeviceEvent -= value;
 
                     if (rawDeviceEvent == null && rawDeviceEventCallbackId.HasValue)
-                        NativeMethods.tdUnregisterCallback(rawDeviceEventCallbackId.Value);
+                        Proxy.UnregisterCallback(rawDeviceEventCallbackId.Value);
                 }
             }
         }
 
-        void OnDeviceStateChanged(int deviceId, int method, string data, int callbackId, IntPtr context)
+        void OnDeviceStateChanged(int deviceId, DeviceMethod method, string data, int callbackId, IntPtr context)
         {
             if (deviceStateChanged == null)
                 return;
@@ -360,7 +337,7 @@ namespace TellCore
             var args = new DeviceStateChangedEventArgs
             {
                 DeviceId = deviceId,
-                Method = (DeviceMethod)method,
+                Method = method,
                 Data = data
             };
 
@@ -402,7 +379,7 @@ namespace TellCore
         /// </summary>
         public void Close()
         {
-            NativeMethods.tdClose();
+            Proxy.Close();
         }
 
         public void Dispose()
@@ -411,14 +388,14 @@ namespace TellCore
             UnregisterIfNecessary(ref deviceStateChangedCallbackId);
             UnregisterIfNecessary(ref rawDeviceEventCallbackId);
 
-            NativeMethods.tdClose();
+            Proxy.Close();
         }
 
-        static void UnregisterIfNecessary(ref int? callbackId)
+        private void UnregisterIfNecessary(ref int? callbackId)
         {
             if (callbackId.HasValue)
             {
-                NativeMethods.tdUnregisterCallback(callbackId.Value);
+                Proxy.UnregisterCallback(callbackId.Value);
                 callbackId = null;
             }
         }
