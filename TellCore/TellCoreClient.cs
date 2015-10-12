@@ -1,4 +1,5 @@
 ﻿using System;
+using TellCore.Utils;
 
 namespace TellCore
 {
@@ -16,9 +17,15 @@ namespace TellCore
         event DeviceStateChangedHandler deviceStateChanged;
         event RawDeviceEventHandler rawDeviceEvent;
 
+        TelldusUtf8Marshaler InMarshaler { get; set; }
+        TelldusUtf8Marshaler OutMarshaler { get; set; }
+
         public TellCoreClient()
         {
             NativeMethods.tdInit();
+
+            InMarshaler = new TelldusUtf8Marshaler(MarshalDirection.In);
+            OutMarshaler = new TelldusUtf8Marshaler(MarshalDirection.Out);
         }
 
         /// <summary>
@@ -229,6 +236,67 @@ namespace TellCore
         public TellstickResult Down(int deviceId)
         {
             return NativeMethods.tdDown(deviceId);
+        }
+
+        /// <summary>
+        /// Use this function to iterate over all sensors.
+        /// </summary>
+        /// <returns>Returns a sensor, if present. Call until Result != Success to enumerate sensors.</returns>
+        public SensorResult GetSensor()
+        {
+            IntPtr protocol = InMarshaler.MarshalManagedToNative("");
+            IntPtr model = InMarshaler.MarshalManagedToNative("");
+            
+            int sensorId = 0;
+            int type = 0;
+
+            // Assume no protocol name is longer than 20 characters, and no models are longer than 30 characters
+            var response = NativeMethods.tdSensor(protocol, 20, model, 30, ref sensorId, ref type);
+
+            var result = new SensorResult
+            {
+                Model = (string)OutMarshaler.MarshalNativeToManaged(model),
+                Protocol = (string)OutMarshaler.MarshalNativeToManaged(protocol),
+                Result = response,
+                SensorId = sensorId,
+                Type = (SensorValueType)type
+            };
+
+            InMarshaler.CleanUpNativeData(protocol);
+            InMarshaler.CleanUpNativeData(model);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get one of the supported sensor values from a sensor. The triplet protocol, model and id together identifies a sensor.
+        /// </summary>
+        /// <param name="protocol">The protocol returned by GetSensor</param>
+        /// <param name="model">The model returned by GetSensor</param>
+        /// <param name="id">The id returned by GetSensor</param>
+        /// <param name="type">One of the SensorValueTypes returned by GetSensor</param>
+        /// <returns>A reading with a timestamp for when the value was read.</returns>
+        public SensorReadingResult GetSensorValue(string protocol, string model, int id, SensorValueType type) 
+        {
+            IntPtr protocolPointer = InMarshaler.MarshalManagedToNative(protocol);
+            IntPtr modelPointer = InMarshaler.MarshalManagedToNative(model);
+            IntPtr valuePointer = InMarshaler.MarshalManagedToNative("");
+
+            int timestamp = 0;
+
+            var response = NativeMethods.tdSensorValue(protocolPointer, modelPointer, id, (int)type, valuePointer, 20, ref timestamp);
+
+            var result = new SensorReadingResult
+            {
+                Value = (string)OutMarshaler.MarshalNativeToManaged(valuePointer),
+                TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(timestamp)
+            };
+
+            InMarshaler.CleanUpNativeData(protocolPointer);
+            InMarshaler.CleanUpNativeData(modelPointer);
+            InMarshaler.CleanUpNativeData(valuePointer);
+
+            return result;
         }
 
         /// <summary>
