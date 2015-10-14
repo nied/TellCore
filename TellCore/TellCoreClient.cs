@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using TellCore.Utils;
 
 namespace TellCore
@@ -16,16 +18,10 @@ namespace TellCore
         event DeviceChangedHandler deviceChanged;
         event DeviceStateChangedHandler deviceStateChanged;
         event RawDeviceEventHandler rawDeviceEvent;
-
-        TelldusUtf8Marshaler InMarshaler { get; set; }
-        TelldusUtf8Marshaler OutMarshaler { get; set; }
-
+        
         public TellCoreClient()
         {
             NativeMethods.tdInit();
-
-            InMarshaler = new TelldusUtf8Marshaler(MarshalDirection.In);
-            OutMarshaler = new TelldusUtf8Marshaler(MarshalDirection.Out);
         }
 
         /// <summary>
@@ -239,33 +235,46 @@ namespace TellCore
         }
 
         /// <summary>
+        /// Utility function to get all sensors.
+        /// </summary>
+        public IEnumerable<SensorResult> GetSensors()
+        {
+            SensorResult result = null;
+
+            do
+            {
+                result = GetSensor();
+
+                if (result.Result == TellstickResult.Success)
+                    yield return result;
+            }
+            while (result.Result == TellstickResult.Success);
+        }
+
+        /// <summary>
         /// Use this function to iterate over all sensors.
         /// </summary>
         /// <returns>Returns a sensor, if present. Call until Result != Success to enumerate sensors.</returns>
         public SensorResult GetSensor()
         {
-            IntPtr protocol = InMarshaler.MarshalManagedToNative("");
-            IntPtr model = InMarshaler.MarshalManagedToNative("");
-            
-            int sensorId = 0;
-            int type = 0;
-
-            // Assume no protocol name is longer than 20 characters, and no models are longer than 30 characters
-            var response = NativeMethods.tdSensor(protocol, 20, model, 30, ref sensorId, ref type);
-
-            var result = new SensorResult
+            using (var protocol = new DisposableStringPointer())
+            using (var model = new DisposableStringPointer())
             {
-                Model = (string)OutMarshaler.MarshalNativeToManaged(model),
-                Protocol = (string)OutMarshaler.MarshalNativeToManaged(protocol),
-                Result = response,
-                SensorId = sensorId,
-                Type = (SensorValueType)type
-            };
+                int sensorId = 0;
+                int type = 0;
 
-            InMarshaler.CleanUpNativeData(protocol);
-            InMarshaler.CleanUpNativeData(model);
+                // Assume no protocol name is longer than 20 characters, and no models are longer than 30 characters
+                var response = NativeMethods.tdSensor(protocol.Pointer, 20, model.Pointer, 30, ref sensorId, ref type);
 
-            return result;
+                return new SensorResult
+                {
+                    Model = model.Value,
+                    Protocol = protocol.Value,
+                    Result = response,
+                    SensorId = sensorId,
+                    Type = (SensorValueType)type
+                };   
+            }
         }
 
         /// <summary>
@@ -278,25 +287,20 @@ namespace TellCore
         /// <returns>A reading with a timestamp for when the value was read.</returns>
         public SensorReadingResult GetSensorValue(string protocol, string model, int id, SensorValueType type) 
         {
-            IntPtr protocolPointer = InMarshaler.MarshalManagedToNative(protocol);
-            IntPtr modelPointer = InMarshaler.MarshalManagedToNative(model);
-            IntPtr valuePointer = InMarshaler.MarshalManagedToNative("");
-
-            int timestamp = 0;
-
-            var response = NativeMethods.tdSensorValue(protocolPointer, modelPointer, id, (int)type, valuePointer, 20, ref timestamp);
-
-            var result = new SensorReadingResult
+            using (var protocolPointer = new DisposableStringPointer(protocol))
+            using (var modelPointer = new DisposableStringPointer(model))
+            using (var valuePointer = new DisposableStringPointer())
             {
-                Value = (string)OutMarshaler.MarshalNativeToManaged(valuePointer),
-                TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(timestamp)
-            };
+                int timestamp = 0;
 
-            InMarshaler.CleanUpNativeData(protocolPointer);
-            InMarshaler.CleanUpNativeData(modelPointer);
-            InMarshaler.CleanUpNativeData(valuePointer);
+                var response = NativeMethods.tdSensorValue(protocolPointer.Pointer, modelPointer.Pointer, id, (int)type, valuePointer.Pointer, 20, ref timestamp);
 
-            return result;
+                return new SensorReadingResult
+                {
+                    Value = valuePointer.Value,
+                    TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(timestamp)
+                };
+            }
         }
 
         /// <summary>
