@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace TellCore.Utils
 {
+    /// <summary>
+    /// A simple wrapper around a string pointer.
+    /// This provides a way for us to guarantee string pointers are
+    /// not leaked if for example, a method call throws an exception.
+    /// </summary>
     public class DisposableStringPointer : IDisposable
     {
         public string Value
