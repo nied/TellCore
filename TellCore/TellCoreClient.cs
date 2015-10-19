@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using TellCore.Utils;
 
 namespace TellCore
 {
@@ -15,7 +18,7 @@ namespace TellCore
         event DeviceChangedHandler deviceChanged;
         event DeviceStateChangedHandler deviceStateChanged;
         event RawDeviceEventHandler rawDeviceEvent;
-
+        
         public TellCoreClient()
         {
             NativeMethods.tdInit();
@@ -229,6 +232,75 @@ namespace TellCore
         public TellstickResult Down(int deviceId)
         {
             return NativeMethods.tdDown(deviceId);
+        }
+
+        /// <summary>
+        /// Utility function to get all sensors.
+        /// </summary>
+        public IEnumerable<SensorResult> GetSensors()
+        {
+            SensorResult result = null;
+
+            do
+            {
+                result = GetSensor();
+
+                if (result.Result == TellstickResult.Success)
+                    yield return result;
+            }
+            while (result.Result == TellstickResult.Success);
+        }
+
+        /// <summary>
+        /// Use this function to iterate over all sensors.
+        /// </summary>
+        /// <returns>Returns a sensor, if present. Call until Result != Success to enumerate sensors.</returns>
+        public SensorResult GetSensor()
+        {
+            using (var protocol = new DisposableStringPointer())
+            using (var model = new DisposableStringPointer())
+            {
+                int sensorId = 0;
+                int type = 0;
+
+                // Assume no protocol name is longer than 20 characters, and no models are longer than 30 characters
+                var response = NativeMethods.tdSensor(protocol.Pointer, 20, model.Pointer, 30, ref sensorId, ref type);
+
+                return new SensorResult
+                {
+                    Model = model.Value,
+                    Protocol = protocol.Value,
+                    Result = response,
+                    SensorId = sensorId,
+                    Type = (SensorValueType)type
+                };   
+            }
+        }
+
+        /// <summary>
+        /// Get one of the supported sensor values from a sensor. The triplet protocol, model and id together identifies a sensor.
+        /// </summary>
+        /// <param name="protocol">The protocol returned by GetSensor</param>
+        /// <param name="model">The model returned by GetSensor</param>
+        /// <param name="id">The id returned by GetSensor</param>
+        /// <param name="type">One of the SensorValueTypes returned by GetSensor</param>
+        /// <returns>A reading with a timestamp for when the value was read.</returns>
+        public SensorReadingResult GetSensorValue(string protocol, string model, int id, SensorValueType type) 
+        {
+            using (var protocolPointer = new DisposableStringPointer(protocol))
+            using (var modelPointer = new DisposableStringPointer(model))
+            using (var valuePointer = new DisposableStringPointer())
+            {
+                int timestamp = 0;
+
+                var response = NativeMethods.tdSensorValue(protocolPointer.Pointer, modelPointer.Pointer, id, (int)type, valuePointer.Pointer, 20, ref timestamp);
+
+                return new SensorReadingResult
+                {
+                    Value = valuePointer.Value,
+                    TimeStamp = new DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(timestamp)
+                };
+            }
         }
 
         /// <summary>

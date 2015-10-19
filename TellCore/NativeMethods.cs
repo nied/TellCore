@@ -128,6 +128,25 @@ namespace TellCore
         [DllImport("TelldusCore.dll")]
         internal static extern int tdRegisterDeviceChangeEvent(DeviceChangeEventFunctionDelegate deviceChangeEventFunction, IntPtr context);
 
+        [DllImport("TelldusCore.dll")]
+        public static extern TellstickResult tdSensor(
+            IntPtr protocol,
+            int protocolLength, 
+            IntPtr model, 
+            int modelLength,
+            ref int id,
+            ref int dataTypes);
+
+        [DllImport("TelldusCore.dll")]
+        public static extern int tdSensorValue(
+            IntPtr protocol, 
+            IntPtr model, 
+            int id, 
+            int dataType,
+            IntPtr value, 
+            int valueLength, 
+            ref int timestamp);
+        
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         internal delegate void EventFunctionDelegate(
             int deviceId, 
