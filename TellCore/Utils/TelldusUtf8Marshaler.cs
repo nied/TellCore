@@ -21,9 +21,10 @@ namespace TellCore.Utils
         /// Initializes a new instance of the <see cref="TelldusUtf8Marshaler"/> class.
         /// </summary>
         /// <param name="direction">
-        /// if set to <c>true</c> the marshaler will free strings using Telldus API.
-        /// Use this for marshalers that receive strings from the API. If false the
-        /// strings will</param>
+        /// if set to <c>Out</c> the marshaler will free strings using Telldus API.
+        /// Use this for marshalers that receive strings from the API. If <c>In</c> the
+        /// strings will be converted to native pointers. Use this for parameters to TelldusCore.
+        /// </param>
         public TelldusUtf8Marshaler(MarshalDirection direction)
         {
             this.direction = direction;
