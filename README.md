@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/jqldyvxke1blix8a?svg=true)](https://ci.appveyor.com/project/nied/tellcore)
+
 ## What even is this?
 TellCore is a managed .NET wrapper around the ``TelldusCore.dll`` that ships with TelldusCenter.
 
