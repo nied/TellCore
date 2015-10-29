@@ -287,13 +287,11 @@ namespace TellCore
         /// <returns>A reading with a timestamp for when the value was read.</returns>
         public SensorReadingResult GetSensorValue(string protocol, string model, int id, SensorValueType type) 
         {
-            using (var protocolPointer = new DisposableStringPointer(protocol))
-            using (var modelPointer = new DisposableStringPointer(model))
             using (var valuePointer = new DisposableStringPointer())
             {
                 int timestamp = 0;
 
-                var response = NativeMethods.tdSensorValue(protocolPointer.Pointer, modelPointer.Pointer, id, (int)type, valuePointer.Pointer, 20, ref timestamp);
+                var response = NativeMethods.tdSensorValue(protocol, model, id, (int)type, valuePointer.Pointer, 20, ref timestamp);
 
                 return new SensorReadingResult
                 {
