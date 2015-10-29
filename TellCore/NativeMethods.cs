@@ -139,8 +139,8 @@ namespace TellCore
 
         [DllImport("TelldusCore.dll")]
         public static extern int tdSensorValue(
-            IntPtr protocol, 
-            IntPtr model, 
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]string protocol,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalCookie = "in", MarshalTypeRef = typeof(TelldusUtf8Marshaler))]string model, 
             int id, 
             int dataType,
             IntPtr value, 
