@@ -71,7 +71,7 @@ namespace TellCore
         internal static extern TellstickResult tdBell(int deviceId);
 
         [DllImport("TelldusCore.dll")]
-        internal static extern TellstickResult tdDim(int deviceId, char level);
+        internal static extern TellstickResult tdDim(int deviceId, byte level);
 
         [DllImport("TelldusCore.dll")]
         internal static extern TellstickResult tdExecute(int deviceId);

@@ -196,12 +196,12 @@ namespace TellCore
         /// <param name="deviceId">The deviceId to dim</param>
         /// <param name="level">The level to dim to (0 - 255)</param>
         /// <returns>The result of the operation</returns>
-        public TellstickResult Dim(int deviceId, int level)
+        public TellstickResult Dim(int deviceId, byte level)
         {
             if (level < 0 || level > 255)
                 throw new ArgumentOutOfRangeException("level", "Must be between 0 and 255");
 
-            return NativeMethods.tdDim(deviceId, (char)level);
+            return NativeMethods.tdDim(deviceId, level);
         }
 
         /// <summary>
